@@ -12,7 +12,7 @@ def load_data():
         df_sorted = df_merged.sort_values(by="Order ID")
         df_sorted.to_csv("onlinesales_sorted.csv", index=False)
         df_online_sales = pd.read_csv("onlinesales_sorted.csv")
-        df_online_sales['Order Date'] = pd.to_datetime(df_online_sales['Order Date'], format='%d-%m-%Y')
+        # df_online_sales['Order Date'] = pd.to_datetime(df_online_sales['Order Date'], format='%d-%m-%Y')
         df_online_sales = df_sorted
 
         return df_online_sales
@@ -179,55 +179,6 @@ def update_data():
     except Exception as e:
         messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
 
-def delete_data():
-    selected_item = tree.selection()
-    if not selected_item:
-        messagebox.showwarning("Chọn dòng", "Vui lòng chọn một dòng để xóa")
-        return
-
-    # Lấy thông tin dòng từ Treeview
-    item_id = selected_item[0]
-    values = tree.item(item_id)['values']  # Giá trị của dòng được chọn
-
-    try:
-        # Chuyển các giá trị của dòng được chọn thành từ điển, trừ cột ngày tháng năm (Order Date)
-        selected_row = {}
-        for col, value in zip(df.columns, values):
-            if col == "Order Date":  # Không đưa cột "Order Date" vào
-                continue
-            # Kiểm tra cột "Order ID", ép kiểu về chuỗi
-            if col == "Order ID" or col == "Category" or col == "Sub-Category" or col == "PaymentMode" or col == "CustomerName" or col == "State" or col == "City":
-                selected_row[col] = str(value)  # Đảm bảo "Order ID" ... là chuỗi
-            else:
-                selected_row[col] = value
-
-        # Tìm tất cả chỉ số dòng cần xóa trong DataFrame, trừ cột "Order Date"
-        item_indexes = df.index[
-            (df['Order ID'] == str(values[0])) &
-            (df['Category'] == str(values[4])) &
-            (df['Sub-Category'] == str(values[5])) &
-            (df['PaymentMode'] == str(values[6])) &
-            (df['CustomerName'] == str(values[8])) &
-            (df['State'] == str(values[9])) &
-            (df['City'] == str(values[10]))
-        ].tolist()
-
-
-        if not item_indexes:
-            messagebox.showwarning("Không tìm thấy", "Không tìm thấy dòng để xóa.")
-            return
-
-        # Xóa dòng trong DataFrame
-        df.drop(item_indexes[0], inplace=True)
-
-        # Lưu lại DataFrame vào file CSV
-        df.to_csv("onlinesales_sorted.csv", index=False)
-
-        # Cập nhật Treeview hiển thị
-        display_data(current_page)
-        messagebox.showinfo("Thông báo", "Dữ liệu đã được xóa thành công!")
-    except Exception as e:
-        messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
 
 # Tạo giao diện chính
 root = tk.Tk()
@@ -246,7 +197,7 @@ frame_controls.pack(pady=10)
 # Nút chức năng
 tk.Button(frame_controls, text="Tạo dữ liệu mới", command=create_new_data).pack(side=tk.LEFT, padx=5)
 tk.Button(frame_controls, text="Cập nhật dữ liệu", command=update_data).pack(side=tk.LEFT, padx=5)
-tk.Button(frame_controls, text="Xóa dữ liệu", command=delete_data).pack(side=tk.LEFT, padx=5)
+
 
 # Phân trang
 frame_pagination = tk.Frame(root)
