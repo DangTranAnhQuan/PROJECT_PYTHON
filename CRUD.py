@@ -57,24 +57,23 @@ def update():
             row = int(input('Select the row to update: '))
             if row in filtered_data.index:
                 print(f'Enter the information for the row {row}')
-                filtered_data.loc[row, 'Amount'] = int(input('Amount: '))
-                filtered_data.loc[row, 'Profit'] = int(input('Profit: '))
-                filtered_data.loc[row, 'Quantity'] = int(input('Quantity: '))
-                filtered_data.loc[row, 'Category'] = input('Category: ')
-                filtered_data.loc[row, 'Sub-Category'] = input('Sub-Category: ')
-                filtered_data.loc[row, 'PaymentMode'] = input('PaymentMode: ')
-                filtered_data.loc[row, 'Order Date'] = input('Order Date: ')
-                filtered_data.loc[row, 'CustomerName'] = input('CustomerName: ')
-                filtered_data.loc[row, 'State'] = input('State: ')
-                filtered_data.loc[row, 'City'] = input('City: ')
+                df_merged.loc[row, 'Amount'] = int(input('Amount: '))
+                df_merged.loc[row, 'Profit'] = int(input('Profit: '))
+                df_merged.loc[row, 'Quantity'] = int(input('Quantity: '))
+                df_merged.loc[row, 'Category'] = input('Category: ')
+                df_merged.loc[row, 'Sub-Category'] = input('Sub-Category: ')
+                df_merged.loc[row, 'PaymentMode'] = input('PaymentMode: ')
+                df_merged.loc[row, 'Order Date'] = input('Order Date: ')
+                df_merged.loc[row, 'CustomerName'] = input('CustomerName: ')
+                df_merged.loc[row, 'State'] = input('State: ')
+                df_merged.loc[row, 'City'] = input('City: ')
 
                 print('Information updated successfully')
-                df_merged[df_merged['Order ID'] == ID] = filtered_data
                 df_merged.to_csv('onlinesales_sorted.csv')
             else:
                 print('Invalid row')
     except:
-        print('Data type error')
+        print('Error')
 
 
 
