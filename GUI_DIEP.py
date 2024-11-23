@@ -3,18 +3,22 @@ import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 import numpy as np
 from datetime import datetime
+
 # Đọc và chuẩn bị dữ liệu
 def load_data():
-    df_details = pd.read_csv("Details.csv")
-    df_orders = pd.read_csv("Orders.csv")
-    df_merged = pd.merge(df_details, df_orders, on="Order ID")
-    df_sorted = df_merged.sort_values(by="Order ID")
-    df_sorted.to_csv("onlinesales_sorted.csv", index=False)
-    df_online_sales = pd.read_csv("onlinesales_sorted.csv")
-    df_online_sales['Order Date'] = pd.to_datetime(df_online_sales['Order Date'], format='%d-%m-%Y')
-    return df_online_sales
-df = load_data()
+        # Nếu không tồn tại, thực hiện merge từ các file gốc và lưu kết quả
+        df_details = pd.read_csv("Details.csv")
+        df_orders = pd.read_csv("Orders.csv")
+        df_merged = pd.merge(df_details, df_orders, on="Order ID")
+        df_sorted = df_merged.sort_values(by="Order ID")
+        df_sorted.to_csv("onlinesales_sorted.csv", index=False)
+        df_online_sales = pd.read_csv("onlinesales_sorted.csv")
+        df_online_sales = df_sorted
 
+        return df_online_sales
+
+df = load_data()
+df['Order Date'] = pd.to_datetime(df['Order Date'], format='%d-%m-%Y')
 # Biến toàn cục
 current_page = 0
 items_per_page = 20
@@ -33,10 +37,12 @@ def display_data(page=0):
     start_idx = page * items_per_page
     end_idx = min(start_idx + items_per_page, len(df))
     df_page = df.iloc[start_idx:end_idx]
+
     if items_per_page <= 30: 
         tree.config(height = items_per_page)
     else: 
         tree.config(height = 20)
+
 
     # Xóa dữ liệu cũ trong tree
     for row in tree.get_children():
@@ -50,13 +56,12 @@ def display_data(page=0):
     label_page_info.config(text=f"Trang {current_page + 1} / {num_pages}")
     entry_page.delete(0, tk.END)
     entry_page.insert(0, str(current_page + 1))
-
 # Kiểm tra ngày tháng hợp lệ
 def validate_date(date_str):
     try:
         parts = []
         # Chuyển đổi ngày thành định dạng dd-mm-yyyy nếu cần
-        if date_str.find(" ") != -1:
+        if date_str.find(" ") != -1: # kiem tra tim thấy giờ
             date_str = date_str[:date_str.find(" ")]            
             parts = date_str.split("-")
             parts.reverse()
@@ -64,11 +69,9 @@ def validate_date(date_str):
             parts = date_str.split("-")
 
         if len(parts) == 3:
-            day = parts[0].zfill(2)  # Đảm bảo 2 chữ số cho ngày
-            month = parts[1].zfill(2)  # Đảm bảo 2 chữ số cho tháng
-            year = parts[2].zfill(4)  # Đảm bảo 4 chữ số cho năm
-            date_str = f"{day}-{month}-{year}"
-        
+            date_str = f"{parts[0]}-{parts[1]}-{parts[2]}"
+        else:
+            return False
         # Kiểm tra định dạng chuẩn dd-mm-yyyy
         datetime.strptime(date_str, "%d-%m-%Y")
         return True
@@ -122,14 +125,13 @@ def create_new_data():
         
             # Tạo một dòng dữ liệu mới dưới dạng DataFrame
             new_row_df = pd.DataFrame([new_data])
-        
+            
+            new_row_df['Order Date'] = pd.to_datetime(new_row_df['Order Date'], format='%d-%m-%Y')
             # Thêm dữ liệu mới vào DataFrame chính
             df = pd.concat([df, new_row_df], ignore_index=True)
 
             df[['Amount', 'Profit', 'Quantity']] = df[['Amount', 'Profit', 'Quantity']].astype(int)
-
-            df['Order Date'] = pd.to_datetime(df['Order Date'], format='%d-%m-%Y')
-
+            
             # Ghi toàn bộ dữ liệu mới vào tệp CSV
             df.to_csv("onlinesales_sorted.csv", index=False)
         
@@ -141,6 +143,7 @@ def create_new_data():
             messagebox.showinfo("Thông báo", "Thêm dữ liệu thành công!")
         except Exception as e:
             messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
+           
 
 
     # Tạo nút "Lưu" để lưu dữ liệu
@@ -239,7 +242,6 @@ def update_data():
                 df.to_csv("onlinesales_sorted.csv", index=False)    
                 
                 # Cập nhật Treeview hiển thị
-                tree.item(item_id, values=list(df.loc[index]))
                 display_data(current_page) 
                 
                 # Đóng cửa sổ cập nhật
@@ -258,23 +260,23 @@ def update_data():
 # Tạo giao diện chính
 root = tk.Tk()
 root.title("Quản lý dữ liệu")
+
 tree = ttk.Treeview(root, columns=list(df.columns), show="headings")
 for col in df.columns:
-    tree.heading(col, text=col) 
-    tree.column(col, width=120, anchor="w")
+    tree.heading(col, text=col)
+    tree.column(col, width=100, anchor="w")
 tree.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
 # Khung điều khiển
 frame_controls = tk.Frame(root)
 frame_controls.pack(pady=10)
 
-
 # Nút chức năng
-tk.Button(frame_controls, text="Tạo dữ liệu mới" ,bg= '#FFDEAD' ,command=create_new_data).pack(side=tk.LEFT, padx=5)
-tk.Button(frame_controls, text="Cập nhật dữ liệu",bg= '#EECFA1', command=update_data).pack(side=tk.LEFT, padx=5)
+tk.Button(frame_controls, text="Tạo dữ liệu mới", command=create_new_data).pack(side=tk.LEFT, padx=5)
+tk.Button(frame_controls, text="Cập nhật dữ liệu", command=update_data).pack(side=tk.LEFT, padx=5)
 
 # Phân trang
-frame_pagination = tk.Frame(root)   
+frame_pagination = tk.Frame(root)
 frame_pagination.pack(pady=10)
 
 def go_to_page():
