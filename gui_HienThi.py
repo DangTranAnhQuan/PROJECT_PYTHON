@@ -3,16 +3,23 @@ import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 import numpy as np
 from datetime import datetime
+
+# Đọc và chuẩn bị dữ liệu
 def load_data():
-    df_details = pd.read_csv("Details.csv")
-    df_orders = pd.read_csv("Orders.csv")
-    df_merged = pd.merge(df_details, df_orders, on="Order ID")
-    df_sorted = df_merged.sort_values(by="Order ID")
-    df_sorted.to_csv("onlinesales_sorted.csv", index=False)
-    df_online_sales = pd.read_csv("onlinesales_sorted.csv")
-    df_online_sales['Order Date'] = pd.to_datetime(df_online_sales['Order Date'], format='%d-%m-%Y')
-    return df_online_sales
+        # Nếu không tồn tại, thực hiện merge từ các file gốc và lưu kết quả
+        df_details = pd.read_csv("Details.csv")
+        df_orders = pd.read_csv("Orders.csv")
+        df_merged = pd.merge(df_details, df_orders, on="Order ID")
+        df_sorted = df_merged.sort_values(by="Order ID")
+        df_sorted.to_csv("onlinesales_sorted.csv", index=False)
+        df_online_sales = pd.read_csv("onlinesales_sorted.csv")
+        df_online_sales = df_sorted
+
+        return df_online_sales
+
 df = load_data()
+df['Order Date'] = pd.to_datetime(df['Order Date'], format='%d-%m-%Y')
+df.to_csv("onlinesales_sorted.csv", index=False)
 
 # Biến toàn cục
 current_page = 0
@@ -49,21 +56,6 @@ def display_data(page=0):
     label_page_info.config(text=f"Trang {current_page + 1} / {num_pages}")
     entry_page.delete(0, tk.END)
     entry_page.insert(0, str(current_page + 1))
-def search_data():
-    search_term = simpledialog.askstring("Tìm kiếm", "Nhập từ khóa tìm kiếm:")
-    if search_term:
-        filtered_df = df[df.apply(lambda row: search_term.lower() in row.astype(str).str.lower().values, axis=1)]
-        if filtered_df.empty:
-            messagebox.showinfo("Kết quả tìm kiếm", "Không tìm thấy dữ liệu phù hợp.")
-        else:
-            display_filtered_data(filtered_df)
-            
-def display_filtered_data(filtered_df):
-    for row in tree.get_children():
-        tree.delete(row)
-
-    for _, row in filtered_df.iterrows():
-        tree.insert("", tk.END, values=list(row))
 
 # Tạo giao diện chính
 root = tk.Tk()
@@ -71,7 +63,7 @@ root.title("Quản lý dữ liệu")
 tree = ttk.Treeview(root, columns=list(df.columns), show="headings")
 for col in df.columns:
     tree.heading(col, text=col)
-    tree.column(col, width=150, anchor="w")
+    tree.column(col, width=100, anchor="w")
 tree.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
 # Khung điều khiển
