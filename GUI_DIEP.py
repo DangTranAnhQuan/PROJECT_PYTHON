@@ -61,22 +61,20 @@ def validate_date(date_str):
     try:
         parts = []
         # Chuyển đổi ngày thành định dạng dd-mm-yyyy nếu cần
-        if date_str.find(" ") != -1: # kiem tra tim thấy giờ
+        if date_str.find(" ") != -1:
             date_str = date_str[:date_str.find(" ")]            
-            parts = date_str.split("-")
-            parts.reverse()
-        else:
-            parts = date_str.split("-")
-
+        parts = date_str.split("-")
+        
         if len(parts) == 3:
-            date_str = f"{parts[0]}-{parts[1]}-{parts[2]}"
-        else:
-            return False
+            if len(parts[0]) == 4:
+                date_str = f"{parts[2]}-{parts[1]}-{parts[0]}"
+            else:
+                date_str = f"{parts[0]}-{parts[1]}-{parts[2]}"
         # Kiểm tra định dạng chuẩn dd-mm-yyyy
         datetime.strptime(date_str, "%d-%m-%Y")
-        return True
+        return True, date_str
     except ValueError:
-        return False
+        return False, date_str
     
 def is_valid_number(value):
     try:
@@ -112,26 +110,26 @@ def create_new_data():
                     messagebox.showerror("Lỗi", f"Cột '{column}' không được bỏ trống!")
                     return
                 
-            date_column = "Order Date"  # Thay bằng tên cột ngày tháng năm của bạn
-
-            if date_column in new_data:
-                if not validate_date(new_data[date_column]):
+            check_date, new_data["Order Date"] = validate_date(new_data["Order Date"])
+            
+            if 'Order Date' in new_data:
+                if not check_date:
                     messagebox.showerror("Lỗi", "Ngày tháng không hợp lệ! Định dạng: dd-mm-yyyy")
                     return 
             for col in ["Amount", "Profit", "Quantity"]:
                 if col in new_data and not is_valid_number(new_data[col]):
                     messagebox.showerror("Lỗi", f"{col} phải là số nguyên hợp lệ!")
                     return
-        
+            
             # Tạo một dòng dữ liệu mới dưới dạng DataFrame
             new_row_df = pd.DataFrame([new_data])
-            
             new_row_df['Order Date'] = pd.to_datetime(new_row_df['Order Date'], format='%d-%m-%Y')
+
             # Thêm dữ liệu mới vào DataFrame chính
             df = pd.concat([df, new_row_df], ignore_index=True)
 
             df[['Amount', 'Profit', 'Quantity']] = df[['Amount', 'Profit', 'Quantity']].astype(int)
-            
+
             # Ghi toàn bộ dữ liệu mới vào tệp CSV
             df.to_csv("onlinesales_sorted.csv", index=False)
         
@@ -143,7 +141,6 @@ def create_new_data():
             messagebox.showinfo("Thông báo", "Thêm dữ liệu thành công!")
         except Exception as e:
             messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
-           
 
 
     # Tạo nút "Lưu" để lưu dữ liệu
@@ -175,7 +172,7 @@ def update_data():
         state_value = str(values[9])  # Cột 'State'
         city_value = str(values[10])  # Cột 'City'
 
-# Lọc DataFrame theo các cột cụ thể
+        # Lọc DataFrame theo các cột cụ thể
         filtered_df = df[
             (df['Order ID'] == item_id_value) &
             (df['Amount'] == amount_value) &
@@ -193,7 +190,6 @@ def update_data():
         if filtered_df.empty:
             messagebox.showwarning("Không tìm thấy", "Không tìm thấy dữ liệu có Order ID tương ứng để cập nhật.")
             return
-
         index = filtered_df.index[0]  # Lấy chỉ số dòng cần cập nhật
 
         # Mở cửa sổ cập nhật dữ liệu
@@ -211,42 +207,47 @@ def update_data():
         def save_update():
             global df
             try:
-                # Lấy dữ liệu cập nhật từ các ô nhập
-                updated_data = {column: entry.get() for column, entry in entry_fields.items()}
+                res = messagebox.askyesno('Cập nhật dữ liệu','Bạn có chắc chắn muốn lưu chỉnh sửa không ?')
+                if res:
+                    # Lấy dữ liệu cập nhật từ các ô nhập
+                    updated_data = {column: entry.get() for column, entry in entry_fields.items()}
 
-                for column, value in updated_data.items():
-                    if not value:  # Nếu giá trị cột đó trống
-                        messagebox.showerror("Lỗi", f"Cột '{column}' không được bỏ trống!")
-                        return
+                    for column, value in updated_data.items():
+                        if not value:  # Nếu giá trị cột đó trống
+                            messagebox.showerror("Lỗi", f"Cột '{column}' không được bỏ trống!")
+                            return
                     
-                if 'Order Date' in updated_data:
-                    if not validate_date(updated_data['Order Date']):
-                        messagebox.showerror("Lỗi", "Ngày tháng không hợp lệ! Định dạng: dd-mm-yyyy")
-                        return
-                
-                for col in ["Amount", "Profit", "Quantity"]:
-                    if col in updated_data and not is_valid_number(updated_data[col]):
-                        messagebox.showerror("Lỗi", f"{col} phải là số nguyên hợp lệ!")
-                        return
+                    check_date, updated_data["Order Date"] = validate_date(updated_data["Order Date"])
 
-                # Cập nhật dữ liệu trong DataFrame
-                for column, value in updated_data.items():
-                    if column == 'Order Date':
-                        df.at[index, column] = pd.to_datetime(value)
-                    elif column in ('Amount', 'Profit', 'Quantity'):
-                        df.at[index, column] = int(value)
-                    else:
-                        df.at[index, column] = value
-                
-                # Lưu lại DataFrame vào file CSV
-                df.to_csv("onlinesales_sorted.csv", index=False)    
-                
-                # Cập nhật Treeview hiển thị
-                display_data(current_page) 
-                
-                # Đóng cửa sổ cập nhật
-                update_window.destroy()
-                messagebox.showinfo("Thông báo", "Cập nhật dữ liệu thành công!")
+                    if 'Order Date' in updated_data:
+                        if not check_date:
+                            messagebox.showerror("Lỗi", "Ngày tháng không hợp lệ! Định dạng: dd-mm-yyyy")
+                            return
+                    
+                    for col in ["Amount", "Profit", "Quantity"]:
+                        if col in updated_data and not is_valid_number(updated_data[col]):
+                            messagebox.showerror("Lỗi", f"{col} phải là số nguyên hợp lệ!")
+                            return
+                    
+                    # Cập nhật dữ liệu trong DataFrame
+                    for column, value in updated_data.items():
+                        if column == 'Order Date':
+                            df.at[index, column] = pd.to_datetime(value, format = "%d-%m-%Y")
+                        elif column in ('Amount', 'Profit', 'Quantity'):
+                            df.at[index, column] = int(value)
+                        else:
+                            df.at[index, column] = value
+                    
+                    # Lưu lại DataFrame vào file CSV
+                    df.to_csv("onlinesales_sorted.csv", index=False)    
+                    
+                    # Cập nhật Treeview hiển thị
+                    tree.item(item_id, values=list(df.loc[index]))
+                    display_data(current_page) 
+                    
+                    # Đóng cửa sổ cập nhật
+                    update_window.destroy()
+                    messagebox.showinfo("Thông báo", "Cập nhật dữ liệu thành công!")
             except Exception as e:
                 messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
 
