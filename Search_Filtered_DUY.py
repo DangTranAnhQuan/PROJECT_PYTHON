@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+
 df_details = pd.read_csv("Details.csv")
 df_orders = pd.read_csv("Orders.csv")
 df_merged = pd.merge(df_details, df_orders, on="Order ID")
