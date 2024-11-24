@@ -124,7 +124,6 @@ def go_to_previous_page():
 def go_to_next_page():
     if current_page < get_num_pages() - 1:
         display_data(page=current_page + 1)
-
 tk.Button(frame_pagination, text="<< Trước",bg='#EE0000', command=go_to_previous_page).pack(side=tk.LEFT, padx=10)
 entry_page = tk.Entry(frame_pagination, width=5, justify='center')
 entry_page.insert(0, "1")
