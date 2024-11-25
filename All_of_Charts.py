@@ -86,7 +86,7 @@ def state():
 
 # biểu đồ xu hướng doanh số thay đổi theo thời gian
 def sale_trend():
-    df_online_sales['Order Date'] = pd.to_datetime(df_online_sales['Order Date'], format='%d-%m-%Y')
+    df_online_sales['Order Date'] = pd.to_datetime(df_online_sales['Order Date'], format='%Y-%m-%d')
     df_online_sales['Order Month'] = df_online_sales['Order Date'].dt.to_period('M')
     monthly_sales = df_online_sales.groupby('Order Month')['Amount'].sum()
     plt.figure(figsize=(10, 6))
@@ -134,7 +134,7 @@ def profit():
     plt.show()
 
 def plot_monthly_sales_by_category():
-    df_online_sales['Order Date'] = pd.to_datetime(df_online_sales['Order Date'], format='%d-%m-%Y')
+    df_online_sales['Order Date'] = pd.to_datetime(df_online_sales['Order Date'], format='%Y-%m-%d')
 
     sales_by_month_category = df_online_sales.groupby([df_online_sales['Order Date'].dt.month, 'Category']).size().unstack()
 
