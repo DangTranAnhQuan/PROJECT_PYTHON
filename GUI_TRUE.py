@@ -403,8 +403,8 @@ def chart():
     tk.Button(frame_chart, text="Biểu đồ xu hướng doanh số thay đổi theo thời gian",bg="#FFFFFF", command=chart.sale_trend, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text="Biểu đồ phân bố tần số của số lượng và sự phân tán của số lượng so với chỉ số",bg="#FFCCCC", command= chart.amount, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text="Biểu đồ phân bố tần suất của lợi nhuận và sự phân tán của lợi nhuận so với chỉ số",bg="#FFFFFF", command=chart.profit, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Tổng quan hiệu quả kinh doanh",bg="#FFCCCC", command= chart.plot_monthly_sales_by_category, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Số lượng mua hàng theo danh mục và tháng trong năm",bg="#FFFFFF", command=chart.Business_performance_overview, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Tổng quan hiệu quả kinh doanh",bg="#FFCCCC",command=chart.Business_performance_overview, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Số lượng mua hàng theo danh mục và tháng trong năm",bg="#FFFFFF", command= chart.plot_monthly_sales_by_category, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text="Thoát !",bg="#FF0000",command=chart_window.destroy,width=button_width).pack(pady=5)
 
 # Tạo giao diện chính
