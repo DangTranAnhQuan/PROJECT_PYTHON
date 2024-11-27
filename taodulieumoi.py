@@ -1,18 +1,41 @@
 import pandas as pd
+from datetime import datetime
 
 # Tạo một dòng dữ liệu mới về đơn hàng
 def create_new_data():
     # Nhập dữ liệu từ người dùng
     order_id = input("Enter Order ID: ")
-    amount = float(input("Enter the amount (Amount): "))
-    profit = float(input("Enter the profit (Profit): "))
-    quantity = int(input("Enter quantity (Quantity): "))
+    while True:
+        try:
+            amount = int(input("Enter the amount (Amount): "))
+            break  # Thoát khỏi vòng lặp khi nhập hợp lệ
+        except ValueError:
+            print("Invalid input for amount. Please enter a valid number.") 
+    while True:
+        try:
+            profit = int(input("Enter the profit (Profit): "))
+            break
+        except ValueError:
+            print("Invalid input for profit. Please enter a valid number.")
+
+    while True:
+        try:
+            quantity = int(input("Enter quantity (Quantity): "))
+            break
+        except ValueError:
+            print("Invalid input for quantity. Please enter a valid number.")
     category = input("Enter catalog category (Category): ")
     sub_category = input("Enter Sub-Category (Sub-Category): ")
     payment_mode = input("Enter a payment method (PaymentMode): ")
+    while True:
+        order_date = input("Enter Order Date (dd/mm/yyyy): ")
+        try:
+            # Kiểm tra định dạng ngày tháng
+            datetime.strptime(order_date, "%d/%m/%Y")
+            break  
+        except ValueError:
+            print("Invalid date format. Please enter the date in dd/mm/yyyy format.")
 
-    # Nhập thêm thông tin bổ sung
-    order_date = input("Enter Order Date (dd/mm/yyyy): ")
     customer_name = input("Enter Customer Name: ")
     state = input("Enter State: ")
     city = input("Enter City: ")
