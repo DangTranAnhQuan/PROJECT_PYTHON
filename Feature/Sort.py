@@ -1,7 +1,5 @@
 import pandas as pd
 
-# Đọc từ file đã thực hiện các thao tác thêm xóa sửa ở trên
-
 # Đọc dữ liệu từ các file CSV
 df_details = pd.read_csv("Details.csv")
 df_orders = pd.read_csv("Orders.csv")

@@ -1,5 +1,3 @@
-#Quân
-
 import pandas as pd
 
 # Đọc tệp CSV
