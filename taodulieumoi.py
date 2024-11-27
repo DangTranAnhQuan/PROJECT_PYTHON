@@ -28,13 +28,13 @@ def create_new_data():
     sub_category = input("Enter Sub-Category (Sub-Category): ")
     payment_mode = input("Enter a payment method (PaymentMode): ")
     while True:
-        order_date = input("Enter Order Date (dd/mm/yyyy): ")
+        order_date = input("Enter Order Date (dd-mm-yyyy): ")
         try:
             # Kiểm tra định dạng ngày tháng
-            datetime.strptime(order_date, "%d/%m/%Y")
+            datetime.strptime(order_date, "%d-%m-%Y")
             break  
         except ValueError:
-            print("Invalid date format. Please enter the date in dd/mm/yyyy format.")
+            print("Invalid date format. Please enter the date in dd-mm-yyyy format.")
 
     customer_name = input("Enter Customer Name: ")
     state = input("Enter State: ")
