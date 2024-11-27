@@ -3,9 +3,7 @@ import pandas as pd
 df_details = pd.read_csv("Details.csv")
 df_orders = pd.read_csv("Orders.csv")
 df_merged = pd.merge(df_details, df_orders, on="Order ID")
-df_merged.head(30)
 df_sorted = df_merged.sort_values(by="Order ID")
-df_sorted.head(30)
 df_sorted.to_csv("onlinesales_sorted.csv", index=False)
 df_online_sales = pd.read_csv("onlinesales_sorted.csv")
 
@@ -33,7 +31,7 @@ def update():
                 df_online_sales.loc[row, 'City'] = input('City: ')
 
                 print('Information updated successfully')
-                df_online_sales.to_csv('onlinesales_sorted.csv')
+                df_online_sales.to_csv('onlinesales_sorted.csv', index = False)
             else:
                 print('Invalid row')
     except:
