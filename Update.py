@@ -19,16 +19,12 @@ def update():
             row = int(input('Select the row to update: '))
             if row in filtered_data.index:
                 print(f'Enter the information for the row {row}')
-                df_online_sales.loc[row, 'Amount'] = int(input('Amount: '))
-                df_online_sales.loc[row, 'Profit'] = int(input('Profit: '))
-                df_online_sales.loc[row, 'Quantity'] = int(input('Quantity: '))
-                df_online_sales.loc[row, 'Category'] = input('Category: ')
-                df_online_sales.loc[row, 'Sub-Category'] = input('Sub-Category: ')
-                df_online_sales.loc[row, 'PaymentMode'] = input('PaymentMode: ')
-                df_online_sales.loc[row, 'Order Date'] = input('Order Date: ')
-                df_online_sales.loc[row, 'CustomerName'] = input('CustomerName: ')
-                df_online_sales.loc[row, 'State'] = input('State: ')
-                df_online_sales.loc[row, 'City'] = input('City: ')
+                for col in df_online_sales.columns:
+                    if col != "Order ID":
+                        if col == "Amount" or col == "Profit" or col == "Quantity":
+                            df_online_sales.loc[row, col] = int(input(f'{col}: '))
+                        else:
+                            df_online_sales.loc[row, col] = input(f'{col}: ')
 
                 print('Information updated successfully')
                 df_online_sales.to_csv('onlinesales_sorted.csv', index = False)
