@@ -1,16 +1,10 @@
 import pandas as pd
 from datetime import datetime
-# Đọc tệp CSV
-# df_details = pd.read_csv("Details.csv")
-# df_orders = pd.read_csv("Orders.csv")
 
-#Tham gia DataFrames dựa trên cột "ID đơn hàng"
-# df_merged = pd.merge(df_details, df_orders, on="Order ID") 
 df_merged = pd.read_csv("onlinesales_sorted.csv")
 
 # Tạo một dòng dữ liệu mới về đơn hàng
 def create_new_data():
-    df_merged = pd.read_csv("onlinesales_sorted.csv")
     # Nhập dữ liệu từ người dùng
     order_id = input("Enter Order ID: ")
     while True:
@@ -71,7 +65,6 @@ def create_new_data():
 
 
 def update():
-    df_merged = pd.read_csv("onlinesales_sorted.csv")
     try:
         ID = input("Enter Order ID for update: ")
         filtered_data = df_merged[df_merged['Order ID'] == ID]
@@ -83,19 +76,36 @@ def update():
             row = int(input('Select the row to update: '))
             if row in filtered_data.index:
                 print(f'Enter the information for the row {row}')
-                df_merged.loc[row, 'Amount'] = int(input('Amount: '))
-                df_merged.loc[row, 'Profit'] = int(input('Profit: '))
-                df_merged.loc[row, 'Quantity'] = int(input('Quantity: '))
-                df_merged.loc[row, 'Category'] = input('Category: ')
-                df_merged.loc[row, 'Sub-Category'] = input('Sub-Category: ')
-                df_merged.loc[row, 'PaymentMode'] = input('PaymentMode: ')
-                df_merged.loc[row, 'Order Date'] = input('Order Date: ')
-                df_merged.loc[row, 'CustomerName'] = input('CustomerName: ')
-                df_merged.loc[row, 'State'] = input('State: ')
-                df_merged.loc[row, 'City'] = input('City: ')
+                for col in df_merged.columns:
+                    if col != "Order ID":    
+                        if col == "Amount" or col == "Profit" or col == "Quantity":
+                            df_merged.loc[row, col] = int(input(f'{col}: '))
+                        else:
+                            df_merged.loc[row, col] = input(f'{col}: ')
 
                 print('Information updated successfully')
-                df_merged.to_csv('onlinesales_sorted.csv', index=False)
+                df_merged.to_csv('onlinesales_sorted.csv', index = False)
+            else:
+                print('Invalid row')
+    except:
+        print('Error')
+
+
+def Delete():
+    try:
+        ID = input("Enter Order ID for delete: ")
+        filtered_data = df_merged[df_merged['Order ID'] == ID]
+        if filtered_data.empty:
+            print("ID not found")
+        else:
+            print(filtered_data)
+
+            row = int(input('Select the row to delete: '))
+            if row in filtered_data.index:
+                df_merged.drop(row, inplace = True)
+
+                print('Deleted successfully')
+                df_merged.to_csv('onlinesales_sorted.csv', index = False)
             else:
                 print('Invalid row')
     except:
@@ -103,47 +113,7 @@ def update():
 
 
 
-def Delete():
-    # df_merged = pd.read_csv("onlinesales_sorted.csv")
-    def delete_row_by_over_id(file_path, order_id):
-        try:
-            df = pd.read_csv(f"{file_path}")
-            df_filtered = df[df['Order ID']!= order_id ]
-            df_filtered.to_csv(f"{file_path}", index = False)
-            if(len(df) > len(df_filtered)):
-                print(f"The row with Order ID = {order_id} has been deleted")
-            else:
-                print(f"The row with Order ID = {order_id} does not exist")
-        except KeyError:
-            print(f"Column {order_id} does not exist in {file_path}.")
-        except ValueError:
-            print("An error occurred.")
-    def execute():
-        try:
-            print('1.Delete row in Orders.csv by Order ID')
-            print('2.Delete row in Details.csv by Order ID')
-            print('3.Delete row in onlinesales_sorted.csv by Order ID')
-            print('Enter selection')
-            selection = int(input())
-            order_id = input("Enter Order ID: ")
-            if selection == 1:
-                df_orders = delete_row_by_over_id('Orders.csv',order_id)
-            elif selection == 2:
-                df_details = delete_row_by_over_id('Details.csv',order_id)
-            elif selection == 3:
-                df_merged = delete_row_by_over_id('onlinesales_sorted.csv',order_id)
-            else:
-                print("Error! Please enter a valid number for the method.")
-        except ValueError:
-            print("Error! Please enter a valid number for the method.")
-            
-            
-    execute()
-
-
-
 def Search_Filter():
-    df_merged = pd.read_csv("onlinesales_sorted.csv")
     while True:
         try:
             print("Choose search method")
@@ -197,7 +167,6 @@ def Search_Filter():
 
 
 def Sort():
-    df_merged = pd.read_csv("onlinesales_sorted.csv")
     def create_menu():
         print("Columns can be rearranged:")
         for i, col in enumerate(df_merged.columns):
@@ -214,3 +183,21 @@ def Sort():
     create_menu()
     choice = int(input("Choose a column to sort (enter number): "))
     sort_data(choice)
+
+
+def New():
+    def CreateColumn():
+        # Đọc dữ liệu từ file đã ghép trước đó
+        df_online_sales = pd.read_csv("onlinesales_sorted.csv")
+
+        # Thêm cột Profit Margin
+        df_online_sales['Profit Margin (%)'] = round((df_online_sales['Profit'] / df_online_sales['Amount']) * 100,2)
+
+        # Xử lý trường hợp dữ liệu không hợp lệ (Amount = 0)
+        df_online_sales['Profit Margin (%)'] = df_online_sales['Profit Margin (%)'].fillna(0)
+
+        # Lưu lại vào file mới
+        df_online_sales.to_csv("onlinesales_sorted.csv", index=False)
+
+        print("File đã được lưu tại onlinesales_sortedn.csv")
+    CreateColumn()
