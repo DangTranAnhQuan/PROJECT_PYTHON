@@ -201,3 +201,58 @@ def New():
 
         print("File đã được lưu tại onlinesales_sortedn.csv")
     CreateColumn()
+
+def filter_data():
+    while True:
+        try:
+            print("\nChọn cột để lọc dữ liệu:")
+            print("1. Amount")
+            print("2. Profit")
+            print("3. Quantity")
+            print("0. Thoát")
+            
+            column_choice = int(input("Nhập số tương ứng với cột: "))
+            
+            if column_choice == 0:
+                break
+            
+            columns = ["Amount", "Profit", "Quantity"]
+            
+            if 1 <= column_choice <= 3:
+                selected_column = columns[column_choice - 1]
+                
+                print("\nChọn điều kiện:")
+                print("1. Lớn hơn")
+                print("2. Nhỏ hơn")
+                print("3. Bằng")
+                
+                condition_choice = int(input("Nhập số tương ứng với điều kiện: "))
+                
+                if condition_choice not in [1, 2, 3]:
+                    print("Điều kiện không hợp lệ. Vui lòng thử lại.")
+                    continue
+                
+                if selected_column in ["Amount", "Profit", "Quantity"]:
+                    value = int(input(f"Nhập giá trị so sánh cho cột {selected_column}: "))
+                
+                # Lọc dữ liệu
+                if condition_choice == 1:  # Lớn hơn
+                    filtered_data = df_merged[df_merged[selected_column] > value]
+                elif condition_choice == 2:  # Nhỏ hơn
+                    filtered_data = df_merged[df_merged[selected_column] < value]
+                elif condition_choice == 3:  # Bằng
+                    filtered_data = df_merged[df_merged[selected_column] == value]
+                
+                if filtered_data.empty:
+                    print("Không có dữ liệu thỏa mãn điều kiện lọc.")
+                else:
+                    filtered_data.to_csv("filter_data.csv", index=False)
+                    print(f"Dữ liệu sau khi lọc đã được lưu vào tệp 'filter_data.csv'.")
+                    print("Dữ liệu sau khi lọc:")
+                    print(filtered_data)
+            else:
+                print("Lựa chọn cột không hợp lệ. Vui lòng thử lại.")
+        except ValueError:
+            print("Lỗi: Vui lòng nhập số hợp lệ.")
+        except Exception as e:
+            print(f"Lỗi không xác định: {e}")
