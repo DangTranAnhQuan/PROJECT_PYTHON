@@ -1,26 +1,29 @@
 import pandas as pd
 
 # Đọc dữ liệu từ các file CSV
-df_details = pd.read_csv("Details.csv")
-df_orders = pd.read_csv("Orders.csv")
+df_filter_data = pd.read_csv("filter_data.csv")
 
-# Kết hợp hai DataFrame dựa trên cột "Order ID"
-df_merged = pd.merge(df_details, df_orders, on="Order ID")
-
-# Tạo menu lựa chọn cột để sắp xếp
-def create_menu():
+def sort_file():
+    
+    # Tạo menu lựa chọn cột để sắp xếp
     print("Columns can be rearranged:")
-    for i, col in enumerate(df_merged.columns):
-        print(f"{i+1}. {col}")
+    print("1. Order ID")
+    print("2. Amount")
+    print("3. Profit")
+    print("4. Quantity")
+    print("5. Category")
+    print("6. Sub-Category")
+    print("7. PaymentMode")
+    print("8. Order Date")
+    print("9. CustomerName")
+    print("10. State")
+    print("11. City")
 
-# Hàm sắp xếp dữ liệu
-def sort_data(column_index):
-    column_name = df_merged.columns[column_index - 1]
-    sorted_df = df_merged.sort_values(by=column_name)
-    sorted_df.to_csv("onlinesales_sorted.csv", index=False)
+    select = int(input("Choose a column to sort (enter number): "))
+
+    column_name = df_filter_data.columns[select - 1]
+    sorted_df = df_filter_data.sort_values(by=column_name)
+    sorted_df.to_csv("filter_data.csv", index=False)
     print(sorted_df)
 
-# Hiển thị menu và cho phép người dùng lựa chọn
-create_menu()
-choice = int(input("Choose a column to sort (enter number): "))
-sort_data(choice)
+    
