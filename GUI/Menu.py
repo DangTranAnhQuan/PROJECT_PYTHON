@@ -1,5 +1,5 @@
-from CRUD import create_new_data, update, Delete, Search_Filter, Sort, New
-
+from CRUD import create_new_data, update, Delete, Search_Filter, Sort, New, filter_data
+from Sort import sort_file
 print("Select the action")
 print("0.Stop program execution")
 print("1.Create new data in new row")
@@ -8,6 +8,7 @@ print("3.Delete data (one row)")
 print("4.Search and Filter on data")
 print("5.Sort on data")
 print("6.New data generation")
+print("7.Filter data")
 while True:
     choice = int(input("Input the selection: "))
     if choice == 1:
@@ -22,6 +23,9 @@ while True:
         Sort()
     elif choice == 6:
         New()
+    elif choice == 7:
+        filter_data()
+        sort_file()
     elif choice == 0:
         break
     else:

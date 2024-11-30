@@ -266,21 +266,22 @@ def delete_data():
         return
     res = messagebox.askyesno('Xóa dữ liệu','Bạn có chắc chắn muốn xóa đòng này hay không?')
     if res:
-        item = selected_items[0]
-        values = tree.item(item)['values']
-        index = df.index[
-                (df['Order ID'] == str(values[0])) &
-                (df['Amount'] == values[1]) &
-                (df['Profit'] == values[2]) &
-                (df['Quantity'] == values[3]) &
-                (df['Category'] == str(values[4])) &
-                (df['Sub-Category'] == str(values[5])) &
-                (df['PaymentMode'] == str(values[6])) &
-                (df['Order Date'] == str(values[7])) &
-                (df['CustomerName'] == str(values[8])) &
-                (df['State'] == str(values[9])) &
-                (df['City'] == str(values[10]))]
-        df.drop(index, inplace=True)
+        for i in range(len(selected_items)):
+            item = selected_items[i]
+            values = tree.item(item)['values']
+            index = df.index[
+                    (df['Order ID'] == str(values[0])) &
+                    (df['Amount'] == values[1]) &
+                    (df['Profit'] == values[2]) &
+                    (df['Quantity'] == values[3]) &
+                    (df['Category'] == str(values[4])) &
+                    (df['Sub-Category'] == str(values[5])) &
+                    (df['PaymentMode'] == str(values[6])) &
+                    (df['Order Date'] == str(values[7])) &
+                    (df['CustomerName'] == str(values[8])) &
+                    (df['State'] == str(values[9])) &
+                    (df['City'] == str(values[10]))]
+            df.drop(index, inplace=True)
         df.to_csv("onlinesales_sorted.csv", index=False)
         
         global current_page
@@ -376,6 +377,68 @@ def sort_data():
     tk.Button(frame_sort, text="Sắp xếp theo City",bg="#00FFFF", command=lambda: sort(10), width=button_width).pack(pady=5)
     tk.Button(frame_sort, text="Thoát !",bg="#FF0000",command=sort_window.destroy,width=button_width).pack(pady=5)
 
+def filter_data():
+    def apply_filter():
+        try:
+            # Lấy thông tin từ các ô nhập liệu
+            column = column_choice.get()
+            condition = condition_choice.get()
+            value = input_value.get()
+
+            # Kiểm tra điều kiện nhập
+            if column not in ["Amount", "Profit", "Quantity"]:
+                messagebox.showerror("Lỗi", "Chỉ hỗ trợ lọc theo Amount, Profit, hoặc Quantity!")
+                return
+
+            if not value.isdigit():
+                messagebox.showerror("Lỗi", f"Giá trị nhập vào cho cột {column} phải là số nguyên!")
+                return
+
+            value = int(value)
+            # Lọc dữ liệu dựa trên điều kiện
+            if condition == "Lớn hơn":
+                filtered_df = df[df[column] > value]
+            elif condition == "Nhỏ hơn":
+                filtered_df = df[df[column] < value]
+            elif condition == "Bằng":
+                filtered_df = df[df[column] == value]
+            else:
+                messagebox.showerror("Lỗi", "Điều kiện không hợp lệ!")
+                return
+
+            if filtered_df.empty:
+                messagebox.showinfo("Kết quả", "Không có dữ liệu thỏa mãn điều kiện lọc.")
+            else:
+                # Lưu kết quả lọc vào tệp CSV
+                filtered_df.to_csv("filter_data.csv", index=False)
+                messagebox.showinfo("Thành công", "Dữ liệu lọc đã được lưu vào tệp 'filter_data.csv'.")
+                # Hiển thị kết quả lọc
+                display_search_results(filtered_df)
+
+            filter_window.destroy()
+
+        except Exception as e:
+            messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
+
+    # Tạo cửa sổ lọc dữ liệu
+    filter_window = tk.Toplevel(root)
+    filter_window.title("Lọc dữ liệu")
+    filter_window.geometry("400x300")
+
+    tk.Label(filter_window, text="Chọn cột:").pack(pady=5)
+    column_choice = ttk.Combobox(filter_window, values=["Amount", "Profit", "Quantity"], state="readonly")
+    column_choice.pack(pady=5)
+
+    tk.Label(filter_window, text="Chọn điều kiện:").pack(pady=5)
+    condition_choice = ttk.Combobox(filter_window, values=["Lớn hơn", "Nhỏ hơn", "Bằng"], state="readonly")
+    condition_choice.pack(pady=5)
+
+    tk.Label(filter_window, text="Nhập giá trị:").pack(pady=5)
+    input_value = tk.Entry(filter_window)
+    input_value.pack(pady=5)
+
+    tk.Button(filter_window, text="Áp dụng lọc", command=apply_filter).pack(pady=20)
+
 
 
 # Vẽ biểu đồ
@@ -428,6 +491,8 @@ tk.Button(frame_controls, text="Xóa dữ liệu",bg= '#99FFFF', command=delete_
 tk.Button(frame_controls, text="Tìm kiếm",bg= '#FFCC99', command=search_data).pack(side=tk.LEFT, padx=5)
 tk.Button(frame_controls, text="Sắp xếp",bg= '#99FFFF',command=sort_data).pack(side=tk.LEFT, padx=5)
 tk.Button(frame_controls, text="Vẽ biểu đồ",bg= '#FFCC99',command=chart).pack(side=tk.LEFT, padx=5)
+tk.Button(frame_controls, text="Lọc dữ liệu", bg='#99FFFF', command=filter_data).pack(side=tk.LEFT, padx=5)
+
 
 # Phân trang
 frame_pagination = tk.Frame(root)
