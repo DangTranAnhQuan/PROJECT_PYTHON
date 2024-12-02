@@ -154,6 +154,8 @@ def chart():
     tk.Button(frame_chart, text="Biểu đồ phân bố tần suất của lợi nhuận và sự phân tán của lợi nhuận so với chỉ số",bg="#FFFFFF", command=chart.profit, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text="Tổng quan hiệu quả kinh doanh",bg="#FFCCCC",command=chart.Business_performance_overview, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text="Số lượng mua hàng theo danh mục và tháng trong năm",bg="#FFFFFF", command= chart.plot_monthly_sales_by_category, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text ="Top 10 thành phố và bang có lợi nhuận cao nhất",bg="#FFCCCC", command= chart.top_10_city_and_state_hightest_profit, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Tổng doanh thu theo sản phẩm của Electronics",bg="#FFFFFF", command= chart.most_sold_productst, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text="Thoát !",bg="#FF0000",command=chart_window.destroy,width=button_width).pack(pady=5)
 
 # Tạo giao diện chính
