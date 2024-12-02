@@ -63,21 +63,22 @@ def delete_data():
         return
     res = messagebox.askyesno('Xóa dữ liệu','Bạn có chắc chắn muốn xóa đòng này hay không?')
     if res:
-        item = selected_items[0]
-        values = tree.item(item)['values']
-        index = df.index[
-                (df['Order ID'] == str(values[0])) &
-                (df['Amount'] == values[1]) &
-                (df['Profit'] == values[2]) &
-                (df['Quantity'] == values[3]) &
-                (df['Category'] == str(values[4])) &
-                (df['Sub-Category'] == str(values[5])) &
-                (df['PaymentMode'] == str(values[6])) &
-                (df['Order Date'] == str(values[7])) &
-                (df['CustomerName'] == str(values[8])) &
-                (df['State'] == str(values[9])) &
-                (df['City'] == str(values[10]))]
-        df.drop(index, inplace=True)
+        for i in range(len(selected_items)):
+            item = selected_items[i]
+            values = tree.item(item)['values']
+            index = df.index[
+                    (df['Order ID'] == str(values[0])) &
+                    (df['Amount'] == values[1]) &
+                    (df['Profit'] == values[2]) &
+                    (df['Quantity'] == values[3]) &
+                    (df['Category'] == str(values[4])) &
+                    (df['Sub-Category'] == str(values[5])) &
+                    (df['PaymentMode'] == str(values[6])) &
+                    (df['Order Date'] == str(values[7])) &
+                    (df['CustomerName'] == str(values[8])) &
+                    (df['State'] == str(values[9])) &
+                    (df['City'] == str(values[10]))]
+            df.drop(index, inplace=True)
         df.to_csv("onlinesales_sorted.csv", index=False)
         
         global current_page
@@ -89,42 +90,42 @@ def delete_data():
 
 # Sắp xếp
 def sort_data(): 
-    def sort(column_index):
+    def sort():
         global df
-        column_name = df.columns[column_index]
+        column_name = column_combobox.get()
+        order = order_combobox.get()
 
-        if column_name == "Amount" or column_name == "Profit" or column_name == "Quantity":
-            df[column_name] = df[column_name].astype(int)
-        df = df.sort_values(by=column_name)
+        if column_name not in df.columns:
+            messagebox.showerror("Lỗi", "Vui lòng chọn cột để sắp xếp")
+            sort_window.lift()
+        elif order not in ["Tăng dần", "Giảm dần"]:
+            messagebox.showerror("Lỗi", "Vui lòng chọn kiểu sắp xếp")
+            sort_window.lift()
+        else:
+            ascending = (order == "Tăng dần")
+            df = df.sort_values(by=column_name, ascending = ascending)
 
-        sort_window.destroy()     
-        df.to_csv("onlinesales_sorted.csv", index=False)
-        display_data(current_page)
-        messagebox.showinfo("Thông báo", "Sắp xếp dữ liệu thành công!")
+            sort_window.destroy()
+            df.to_csv("onlinesales_sorted.csv", index=False)
+            display_data(current_page)
+            messagebox.showinfo("Thông báo", "Sắp xếp dữ liệu thành công!")
 
-    # Tạo cửa sổ phụ (Toplevel) để chứa các nút sắp xếp
     sort_window = tk.Toplevel(root)
     sort_window.title("Sắp xếp dữ liệu bán hàng trực tuyến")
-    sort_window.config(height=11)
+    sort_window.geometry("400x300")
 
-    # Tạo frame để chứa các nút sắp xếp
-    frame_sort = tk.Frame(sort_window)
-    frame_sort.pack(padx=10, pady=10)
+    tk.Label(sort_window, text="Chọn cột để sắp xếp:").pack(pady=10)
+    column_combobox = ttk.Combobox(sort_window, values=list(df.columns), state="readonly")
+    column_combobox.set("Chọn cột")
+    column_combobox.pack(pady=10)
 
-    # Các nút sắp xếp
-    button_width = 30
-    tk.Button(frame_sort, text="Sắp xếp theo ID", command=lambda: sort(0), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Amount", command=lambda: sort(1), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Profit", command=lambda: sort(2), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Quantity", command=lambda: sort(3), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Category", command=lambda: sort(4), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Sub-Category", command=lambda: sort(5), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo PaymentMode", command=lambda: sort(6), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Order date", command=lambda: sort(7), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo CustomerName", command=lambda: sort(8), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo State", command=lambda: sort(9), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo City", command=lambda: sort(10), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Thoát", command=sort_window.destroy , width=button_width).pack(pady=5)
+    tk.Label(sort_window, text="Chọn thứ tự sắp xếp:").pack(pady=10)
+    order_combobox = ttk.Combobox(sort_window, values=["Tăng dần", "Giảm dần"], state="readonly")
+    order_combobox.set("Chọn kiểu sắp xếp")
+    order_combobox.pack(pady=10)
+
+    tk.Button(sort_window, text="Sắp xếp", command=sort, bg="#00FFFF", width=20).pack(pady=20)
+    tk.Button(sort_window, text="Thoát", command=sort_window.destroy, bg="#FF0000", width=20).pack(pady=10)
 
 
 # Vẽ biểu đồ
@@ -134,27 +135,26 @@ def chart():
     # Tạo cửa sổ phụ (Toplevel) để chứa các nút sắp xếp
     chart_window = tk.Toplevel(root)
     chart_window.title("Vẽ biểu đồ dữ liệu bán hàng trực tuyến")
-    chart_window.config(height = 13)
-
-    # Tạo frame để chứa các nút sắp xếp
+    
+   # Tạo frame để chứa các nút sắp xếp
     frame_chart = tk.Frame(chart_window)
     frame_chart.pack(padx=10, pady=10)
        
     # Các nút vẽ biểu đồ
     button_width = 70
-    tk.Button(frame_chart, text="Biểu đồ phân phối các phương thức thanh toán", command= chart.paymentmode, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Biểu đồ phân phối số lượng giao dịch theo bang", command=chart.state, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Biểu đồ phân phối danh mục", command= chart.Category_distribution, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Biểu đồ tần số về số lượng và phân tán số lượng so với chỉ số", command=chart.quantity, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Biểu đồ lợi nhuận theo danh mục sản phẩm", command= chart.profit_category, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Biểu đồ lợi nhuận theo danh mục phụ sản phẩm", command=chart.profit_subcategory, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Biểu đồ về khả năng sinh lời theo phương thức thanh toán", command= chart.profit_paymenntmethod, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Biểu đồ xu hướng doanh số thay đổi theo thời gian", command=chart.sale_trend, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Biểu đồ phân bố tần số của số lượng và sự phân tán của số lượng so với chỉ số", command= chart.amount, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Biểu đồ phân bố tần suất của lợi nhuận và sự phân tán của lợi nhuận so với chỉ số", command=chart.profit, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Tổng quan hiệu quả kinh doanh", command= chart.Business_performance_overview, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Số lượng mua hàng theo danh mục và tháng trong năm", command=chart.plot_monthly_sales_by_category, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Thoát", command=chart_window.destroy , width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Biểu đồ phân phối các phương thức thanh toán",bg="#FFCCCC", command= chart.paymentmode, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Biểu đồ phân phối số lượng giao dịch theo bang",bg="#FFFFFF", command=chart.state, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Biểu đồ phân phối danh mục",bg="#FFCCCC", command= chart.Category_distribution, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Biểu đồ tần số về số lượng và phân tán số lượng so với chỉ số",bg="#FFFFFF", command=chart.quantity, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Biểu đồ lợi nhuận theo danh mục sản phẩm",bg="#FFCCCC", command= chart.profit_category, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Biểu đồ lợi nhuận theo danh mục phụ sản phẩm",bg="#FFFFFF", command=chart.profit_subcategory, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Biểu đồ về khả năng sinh lời theo phương thức thanh toán",bg="#FFCCCC", command= chart.profit_paymenntmethod, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Biểu đồ xu hướng doanh số thay đổi theo thời gian",bg="#FFFFFF", command=chart.sale_trend, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Biểu đồ phân bố tần số của số lượng và sự phân tán của số lượng so với chỉ số",bg="#FFCCCC", command= chart.amount, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Biểu đồ phân bố tần suất của lợi nhuận và sự phân tán của lợi nhuận so với chỉ số",bg="#FFFFFF", command=chart.profit, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Tổng quan hiệu quả kinh doanh",bg="#FFCCCC",command=chart.Business_performance_overview, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Số lượng mua hàng theo danh mục và tháng trong năm",bg="#FFFFFF", command= chart.plot_monthly_sales_by_category, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Thoát !",bg="#FF0000",command=chart_window.destroy,width=button_width).pack(pady=5)
 
 # Tạo giao diện chính
 root = tk.Tk()
