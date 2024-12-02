@@ -338,44 +338,42 @@ def display_search_results(filtered_df):
 
 # Sắp xếp
 def sort_data(): 
-    def sort(column_index):
+    def sort():
         global df
-        column_name = df.columns[column_index]
+        column_name = column_combobox.get()
+        order = order_combobox.get()
 
-        if column_name == "Amount" or column_name == "Profit" or column_name == "Quantity":
-            df[column_name] = df[column_name].astype(int)
+        if column_name not in df.columns:
+            messagebox.showerror("Lỗi", "Vui lòng chọn cột để sắp xếp")
+            sort_window.lift()
+        elif order not in ["Tăng dần", "Giảm dần"]:
+            messagebox.showerror("Lỗi", "Vui lòng chọn kiểu sắp xếp")
+            sort_window.lift()
+        else:
+            ascending = (order == "Tăng dần")
+            df = df.sort_values(by=column_name, ascending = ascending)
 
-        df = df.sort_values(by=column_name)
-        sort_window.destroy()
-        
-        df.to_csv("onlinesales_sorted.csv", index=False)
+            sort_window.destroy()
+            df.to_csv("onlinesales_sorted.csv", index=False)
+            display_data(current_page)
+            messagebox.showinfo("Thông báo", "Sắp xếp dữ liệu thành công!")
 
-        display_data(current_page)
-        messagebox.showinfo("Thông báo", "Sắp xếp dữ liệu thành công!")
-
-    # Tạo cửa sổ phụ (Toplevel) để chứa các nút sắp xếp
     sort_window = tk.Toplevel(root)
     sort_window.title("Sắp xếp dữ liệu bán hàng trực tuyến")
-    sort_window.config(height=11)
+    sort_window.geometry("400x300")
 
-    # Tạo frame để chứa các nút sắp xếp
-    frame_sort = tk.Frame(sort_window)
-    frame_sort.pack(padx=10, pady=10)
+    tk.Label(sort_window, text="Chọn cột để sắp xếp:").pack(pady=10)
+    column_combobox = ttk.Combobox(sort_window, values=list(df.columns), state="readonly")
+    column_combobox.set("Chọn cột")
+    column_combobox.pack(pady=10)
 
-    # Các nút sắp xếp
-    button_width = 30
-    tk.Button(frame_sort, text="Sắp xếp theo ID",bg="#00FFFF", command=lambda: sort(0), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Amount", command=lambda: sort(1), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Profit",bg="#00FFFF", command=lambda: sort(2), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Quantity", command=lambda: sort(3), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Category",bg="#00FFFF", command=lambda: sort(4), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Sub-Category", command=lambda: sort(5), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo PaymentMode",bg="#00FFFF", command=lambda: sort(6), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo Order date", command=lambda: sort(7), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo CustomerName",bg="#00FFFF", command=lambda: sort(8), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo State",command=lambda: sort(9), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Sắp xếp theo City",bg="#00FFFF", command=lambda: sort(10), width=button_width).pack(pady=5)
-    tk.Button(frame_sort, text="Thoát !",bg="#FF0000",command=sort_window.destroy,width=button_width).pack(pady=5)
+    tk.Label(sort_window, text="Chọn thứ tự sắp xếp:").pack(pady=10)
+    order_combobox = ttk.Combobox(sort_window, values=["Tăng dần", "Giảm dần"], state="readonly")
+    order_combobox.set("Chọn kiểu sắp xếp")
+    order_combobox.pack(pady=10)
+
+    tk.Button(sort_window, text="Sắp xếp", command=sort, bg="#00FFFF", width=20).pack(pady=20)
+    tk.Button(sort_window, text="Thoát", command=sort_window.destroy, bg="#FF0000", width=20).pack(pady=10)
 
 def filter_data():
     def apply_filter():
@@ -439,6 +437,58 @@ def filter_data():
 
     tk.Button(filter_window, text="Áp dụng lọc", command=apply_filter).pack(pady=20)
 
+def search_data2():
+    def apply_search():
+        try:
+            # Lấy thông tin từ các ô nhập liệu
+            column1 = column1_choice.get()
+            value1 = value1_entry.get()
+            column2 = column2_choice.get()
+            value2 = value2_entry.get()
+
+            # Lọc dữ liệu dựa trên điều kiện nhập
+            filtered_df = df
+
+            if column1 and value1:
+                if column1 in df.columns:
+                    filtered_df = filtered_df[filtered_df[column1].astype(str).str.contains(value1, case=False, na=False)]
+
+            if column2 and value2:
+                if column2 in df.columns:
+                    filtered_df = filtered_df[filtered_df[column2].astype(str).str.contains(value2, case=False, na=False)]
+
+            if filtered_df.empty:
+                messagebox.showinfo("Kết quả", "Không có dữ liệu thỏa mãn điều kiện tìm kiếm.")
+            else:
+                # Hiển thị kết quả tìm kiếm
+                display_search_results(filtered_df)
+                messagebox.showinfo("Kết quả", "Tìm kiếm thành công.")
+
+        except Exception as e:
+            messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
+
+    # Tạo cửa sổ tìm kiếm
+    search_window = tk.Toplevel(root)
+    search_window.title("Tìm kiếm dữ liệu")
+    search_window.geometry("500x300")
+
+    tk.Label(search_window, text="Chọn cột 1:").pack(pady=5)
+    column1_choice = ttk.Combobox(search_window, values=[col for col in df.columns if col not in ["Amount", "Quantity", "Profit"]], state="readonly")
+    column1_choice.pack(pady=5)
+
+    tk.Label(search_window, text="Nhập giá trị 1:").pack(pady=5)
+    value1_entry = tk.Entry(search_window)
+    value1_entry.pack(pady=5)
+
+    tk.Label(search_window, text="Chọn cột 2:").pack(pady=5)
+    column2_choice = ttk.Combobox(search_window, values=[col for col in df.columns if col not in ["Amount", "Quantity", "Profit"]], state="readonly")
+    column2_choice.pack(pady=5)
+
+    tk.Label(search_window, text="Nhập giá trị 2:").pack(pady=5)
+    value2_entry = tk.Entry(search_window)
+    value2_entry.pack(pady=5)
+
+    tk.Button(search_window, text="Áp dụng tìm kiếm", command=apply_search).pack(pady=15)
 
 
 # Vẽ biểu đồ
@@ -448,9 +498,9 @@ def chart():
     # Tạo cửa sổ phụ (Toplevel) để chứa các nút sắp xếp
     chart_window = tk.Toplevel(root)
     chart_window.title("Vẽ biểu đồ dữ liệu bán hàng trực tuyến")
-    chart_window.config(height = 10)
     
    # Tạo frame để chứa các nút sắp xếp
+    # chart_window.config(height=15)
     frame_chart = tk.Frame(chart_window)
     frame_chart.pack(padx=10, pady=10)
        
@@ -468,6 +518,8 @@ def chart():
     tk.Button(frame_chart, text="Biểu đồ phân bố tần suất của lợi nhuận và sự phân tán của lợi nhuận so với chỉ số",bg="#FFFFFF", command=chart.profit, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text="Tổng quan hiệu quả kinh doanh",bg="#FFCCCC",command=chart.Business_performance_overview, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text="Số lượng mua hàng theo danh mục và tháng trong năm",bg="#FFFFFF", command= chart.plot_monthly_sales_by_category, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text =" Top 10 thành phố và bang có lợi nhuận cao nhất",bg="#FFCCCC", command= chart.top_10_city_and_state_hightest_profit, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Tổng doanh thu theo sản phẩm của của Electronics",bg="#FFFFFF", command= chart.most_sold_productst, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text="Thoát !",bg="#FF0000",command=chart_window.destroy,width=button_width).pack(pady=5)
 
 # Tạo giao diện chính
@@ -492,7 +544,7 @@ tk.Button(frame_controls, text="Tìm kiếm",bg= '#FFCC99', command=search_data)
 tk.Button(frame_controls, text="Sắp xếp",bg= '#99FFFF',command=sort_data).pack(side=tk.LEFT, padx=5)
 tk.Button(frame_controls, text="Vẽ biểu đồ",bg= '#FFCC99',command=chart).pack(side=tk.LEFT, padx=5)
 tk.Button(frame_controls, text="Lọc dữ liệu", bg='#99FFFF', command=filter_data).pack(side=tk.LEFT, padx=5)
-
+tk.Button(frame_controls, text="Tìm kiếm nâng cao", bg='#FFCC99', command=search_data2).pack(side=tk.LEFT, padx=5)
 
 # Phân trang
 frame_pagination = tk.Frame(root)
