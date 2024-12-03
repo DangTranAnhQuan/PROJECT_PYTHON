@@ -182,3 +182,47 @@ def Business_performance_overview():
     # # Điều chỉnh khoảng cách giữa các biểu đồ và hiển thị chúng.
     plt.tight_layout()
     plt.show()
+
+def top_10_city_and_state_hightest_profit():
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+    
+    # Vẽ đồ thị cho 10 thành phố có lợi nhuận cao nhất
+    city = df_online_sales.groupby('City')['Profit'].sum().reset_index()
+    top_10_city = city.nlargest(10, 'Profit')
+    ax1.bar(top_10_city['City'], top_10_city['Profit'], color='skyblue')
+    ax1.set_xlabel('City')
+    ax1.set_ylabel('Profit')
+    ax1.set_title('Max Profits Generated from Top 10 Cities')
+    
+    # Xoay các nhãn trục X trên ax1
+    ax1.set_xticks(range(len(top_10_city['City'])))
+    ax1.set_xticklabels(top_10_city['City'], rotation=45, ha='right')
+
+    # Vẽ đồ thị cho 10 tiểu bang có lợi nhuận cao nhất
+    state = df_online_sales.groupby('State')['Profit'].sum().reset_index()
+    top_10_state = state.nlargest(10, 'Profit')
+    ax2.bar(top_10_state['State'], top_10_state['Profit'], color='lightgreen')
+    ax2.set_xlabel('State')
+    ax2.set_ylabel('Profit')
+    ax2.set_title('Max Profits Generated from Top 10 States')
+    
+    # Xoay các nhãn trục X trên ax2
+    ax2.set_xticks(range(len(top_10_state['State'])))
+    ax2.set_xticklabels(top_10_state['State'], rotation=45, ha='right')
+
+    # Tự động điều chỉnh khoảng cách giữa các thành phần
+    plt.tight_layout()
+    plt.show()
+
+def most_sold_productst():
+    # Tạo khung hình
+    plt.figure(figsize=(12,6))
+    electronics_df = df_online_sales[df_online_sales["Category"]=="Electronics"]
+    subcategory_sales = electronics_df.groupby("Sub-Category")["Amount"].sum().reset_index()
+    most_sold_products = subcategory_sales.sort_values(by="Amount",ascending=False)
+    #Vẽ đồ thị được bán nhiều nhất trong loại Electronic
+    plt.bar(most_sold_products["Sub-Category"],most_sold_products["Amount"])
+    plt.title("Total sales by products")
+    plt.xlabel("Products")
+    plt.ylabel("Total Sales Amount")
+    plt.show()

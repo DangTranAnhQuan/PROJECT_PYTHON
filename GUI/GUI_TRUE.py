@@ -296,7 +296,7 @@ def search_data():
     search_term = simpledialog.askstring("Tìm kiếm", "Nhập từ khóa tìm kiếm:")
     if search_term:
         # Lọc dữ liệu chứa từ khóa tìm kiếm
-        filtered_df = df[df.apply(lambda row: search_term.lower() in row.astype(str).str.lower().values, axis=1)]
+        filtered_df = df[df.apply(lambda row: any(search_term.lower() in str(value).lower() for value in row.values), axis=1)]
         if filtered_df.empty:
             messagebox.showinfo("Kết quả tìm kiếm", "Không tìm thấy dữ liệu phù hợp.")
         else:
@@ -519,7 +519,7 @@ def chart():
     tk.Button(frame_chart, text="Tổng quan hiệu quả kinh doanh",bg="#FFCCCC",command=chart.Business_performance_overview, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text="Số lượng mua hàng theo danh mục và tháng trong năm",bg="#FFFFFF", command= chart.plot_monthly_sales_by_category, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text =" Top 10 thành phố và bang có lợi nhuận cao nhất",bg="#FFCCCC", command= chart.top_10_city_and_state_hightest_profit, width=button_width).pack(pady=5)
-    tk.Button(frame_chart, text="Tổng doanh thu theo sản phẩm của của Electronics",bg="#FFFFFF", command= chart.most_sold_productst, width=button_width).pack(pady=5)
+    tk.Button(frame_chart, text="Tổng doanh thu theo sản phẩm của Electronics",bg="#FFFFFF", command= chart.most_sold_productst, width=button_width).pack(pady=5)
     tk.Button(frame_chart, text="Thoát !",bg="#FF0000",command=chart_window.destroy,width=button_width).pack(pady=5)
 
 # Tạo giao diện chính
