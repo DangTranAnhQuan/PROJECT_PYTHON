@@ -53,7 +53,7 @@ def display_data(page=0):
 def search_data():
     search_term = simpledialog.askstring("Tìm kiếm", "Nhập từ khóa tìm kiếm:")
     if search_term:
-        filtered_df = df[df.apply(lambda row: search_term.lower() in row.astype(str).str.lower().values, axis=1)]
+        filtered_df = df[df.apply(lambda row: any(search_term.lower() in str(value).lower() for value in row.values), axis=1)]
         if filtered_df.empty:
             messagebox.showinfo("Kết quả tìm kiếm", "Không tìm thấy dữ liệu phù hợp.")
         else:
