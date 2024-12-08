@@ -3,20 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-df_details = pd.read_csv("Details.csv", sep=",", header = 0)
-df_orders = pd.read_csv("Orders.csv", sep=",", header = 0)
+df_details = pd.read_csv(r"D:\Python\New\python\project\Details.csv", sep=",", header = 0)
+df_orders = pd.read_csv(r"D:\Python\New\python\project\Orders.csv", sep=",", header = 0)
 df_merged = pd.merge(df_details, df_orders, on = 'Order ID', how = 'left')
 
 df_sorted = df_merged.sort_values(by="Order ID")
 df_sorted.head(30)
 df_merged.head(30)
-df_sorted.to_csv("onlinesales_sorted.csv", index=False)
+df_sorted.to_csv(r"D:\Python\New\python\project\onlinesales_sorted.csv", index=False)
 
-df_online_sales = pd.read_csv("onlinesales_sorted.csv")
-
-
-print("\nInformation general del DataFrame:")
-print(df_online_sales.info())
+df_online_sales = pd.read_csv(r"D:\Python\New\python\project\onlinesales_sorted.csv")
 
 
 # # Tổng hợp dữ liệu
@@ -56,16 +52,6 @@ ax[1,1].set_title('Completed Sales')
 plt.tight_layout()
 plt.show()
 
-# # Đếm số lượng giao dịch theo thành phố và phương thức thanh toán, sau đó tìm phương thức phổ biến nhất ở mỗi thành phố.
-city_payment_counts = df_online_sales.groupby(['City', 'PaymentMode']).size().reset_index(name = 'Count')
-city_most_common_payment = city_payment_counts.loc[city_payment_counts.groupby('City')['Count'].idxmax()]
-print(city_most_common_payment)
-
-# Lọc dữ liệu về giao dịch thuộc danh mục "Clothing" và đếm số lượng giao dịch theo từng phương thức thanh toán.
-clothing_transactions = df_online_sales[df_online_sales['Category'] == 'Clothing']
-payment_mode_counts = clothing_transactions['PaymentMode'].value_counts()
-print(payment_mode_counts)
-
 # Nhóm và vẽ biểu đồ đường về số lượng mua hàng theo danh mục và từng tháng trong năm.
 
 sales_by_month_category = df_online_sales.groupby([df_online_sales['Order Date'].dt.month, 'Category']).size().unstack()
@@ -81,7 +67,46 @@ plt.show()
 
 
 
+# Vẽ đồ thị cho 10 thành phố có lợi nhuận cao nhất
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 6))
 
+
+city = df_online_sales.groupby('City')['Profit'].sum().reset_index()
+top_10_city = city.nlargest(10, 'Profit')
+ax1.bar(top_10_city['City'], top_10_city['Profit'])
+ax1.set_xlabel('City')
+ax1.set_ylabel('Profit')
+ax1.set_title('Max Profits Generated from Top 10 Cities')
+
+# Xoay các nhãn trục X trên ax1
+ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45)
+
+# Vẽ đồ thị cho 10 tiểu bang có lợi nhuận cao nhất
+state = df_online_sales.groupby('State')['Profit'].sum().reset_index()
+top_10_state = state.nlargest(10, 'Profit')
+ax2.bar(top_10_state['State'], top_10_state['Profit'])
+ax2.set_xlabel('State')
+ax2.set_ylabel('Profit')
+ax2.set_title('Max Profits Generated from Top 10 States')
+
+# Xoay các nhãn trục X trên ax2
+ax2.set_xticklabels(ax2.get_xticklabels(), rotation=45)
+
+plt.tight_layout()
+plt.show()
+
+
+# Tạo khung hình
+plt.figure(figsize=(12,6))
+electronics_df = df_online_sales[df_online_sales["Category"]=="Electronics"]
+subcategory_sales = electronics_df.groupby("Sub-Category")["Amount"].sum().reset_index()
+most_sold_products = subcategory_sales.sort_values(by="Amount",ascending=False)
+#Vẽ đồ thị được bán nhiều nhất trong loại Electronic
+plt.bar(most_sold_products["Sub-Category"],most_sold_products["Amount"])
+plt.title("Total sales by products")
+plt.xlabel("Products")
+plt.ylabel("Total Sales Amount")
+plt.show()
 
 
 
