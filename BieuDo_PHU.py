@@ -15,10 +15,6 @@ df_sorted.to_csv(r"D:\Python\New\python\project\onlinesales_sorted.csv", index=F
 df_online_sales = pd.read_csv(r"D:\Python\New\python\project\onlinesales_sorted.csv")
 
 
-print("\nInformation general del DataFrame:")
-print(df_online_sales.info())
-
-
 # # Tổng hợp dữ liệu
 total_sales = df_online_sales['Amount'].sum()
 total_profit = df_online_sales['Profit'].sum()
@@ -56,16 +52,6 @@ ax[1,1].set_title('Completed Sales')
 plt.tight_layout()
 plt.show()
 
-# # Đếm số lượng giao dịch theo thành phố và phương thức thanh toán, sau đó tìm phương thức phổ biến nhất ở mỗi thành phố.
-city_payment_counts = df_online_sales.groupby(['City', 'PaymentMode']).size().reset_index(name = 'Count')
-city_most_common_payment = city_payment_counts.loc[city_payment_counts.groupby('City')['Count'].idxmax()]
-print(city_most_common_payment)
-
-# Lọc dữ liệu về giao dịch thuộc danh mục "Clothing" và đếm số lượng giao dịch theo từng phương thức thanh toán.
-clothing_transactions = df_online_sales[df_online_sales['Category'] == 'Clothing']
-payment_mode_counts = clothing_transactions['PaymentMode'].value_counts()
-print(payment_mode_counts)
-
 # Nhóm và vẽ biểu đồ đường về số lượng mua hàng theo danh mục và từng tháng trong năm.
 
 sales_by_month_category = df_online_sales.groupby([df_online_sales['Order Date'].dt.month, 'Category']).size().unstack()
@@ -81,12 +67,10 @@ plt.show()
 
 
 
-
-
-
+# Vẽ đồ thị cho 10 thành phố có lợi nhuận cao nhất
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 6))
 
-# Vẽ đồ thị cho 10 thành phố có lợi nhuận cao nhất
+
 city = df_online_sales.groupby('City')['Profit'].sum().reset_index()
 top_10_city = city.nlargest(10, 'Profit')
 ax1.bar(top_10_city['City'], top_10_city['Profit'])
